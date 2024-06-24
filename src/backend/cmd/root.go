@@ -1,33 +1,39 @@
 package cmd
 
 import (
-	"fmt"
+	"github.com/astaxie/beego"
 
-	"github.com/spf13/cobra"
-
-	"github.com/Qihoo360/wayne/src/backend/cmd/apiserver"
-	"github.com/Qihoo360/wayne/src/backend/cmd/worker"
+	"github.com/Qihoo360/wayne/src/backend/initial"
+	_ "github.com/Qihoo360/wayne/src/backend/routers"
+	"github.com/Qihoo360/wayne/src/backend/workers/webhook"
 )
 
-var Version string
+func Run() {
 
-var RootCmd = &cobra.Command{
-	Use: "wayne",
-}
+	// MySQL
+	initial.InitDb()
 
-var VersionCmd = &cobra.Command{
-	Use:     "version",
-	Aliases: []string{"v"},
-	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Printf("wayne %s \n", Version)
-	},
-}
+	// Swagger API
+	if beego.BConfig.RunMode == "dev" {
+		beego.BConfig.WebConfig.DirectoryIndex = true
+		beego.BConfig.WebConfig.StaticDir["/swagger"] = "swagger"
+	}
 
-func init() {
-	cobra.EnableCommandSorting = false
+	// K8S Client
+	initial.InitClient()
 
-	RootCmd.AddCommand(apiserver.APIServerCmd)
-	RootCmd.AddCommand(worker.WorkerCmd)
+	// 初始化RsaPrivateKey
+	initial.InitRsaKey()
 
-	RootCmd.AddCommand(VersionCmd)
+	busEnable := beego.AppConfig.DefaultBool("BusEnable", false)
+	if busEnable {
+		initial.InitBus()
+	}
+
+	webhook.RegisterHookHandler()
+
+	// init kube labels
+	initial.InitKubeLabel()
+
+	beego.Run()
 }

@@ -139,8 +139,8 @@ func clusterChanged(clusters []models.Cluster) bool {
 			return true
 		}
 
-		if manager.Cluster.KubeConfig != manager.Cluster.KubeConfig {
-			logs.Info("cluster kubeConfig (%d) changed to (%d).", manager.Cluster.KubeConfig, cluster.KubeConfig)
+		if manager.Cluster.KubeConfig != cluster.KubeConfig {
+			logs.Info("cluster kubeConfig (%s) changed to (%s).", manager.Cluster.KubeConfig, cluster.KubeConfig)
 			return true
 		}
 	}
@@ -169,7 +169,7 @@ func Manager(cluster string) (*ClusterManager, error) {
 	// 如果不存在，则重新获取一次集群信息
 	if !exist {
 		BuildApiserverClient()
-		_, exist = clusterManagerSets.Load(cluster)
+		managerInterface, exist = clusterManagerSets.Load(cluster)
 		if !exist {
 			return nil, ErrNotExist
 		}

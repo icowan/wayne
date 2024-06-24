@@ -1,18 +1,11 @@
 export const defaultIngress = `{
-  "apiVersion": "extensions/v1beta1",
+  "apiVersion": "extensions/v1",
   "kind": "Ingress",
   "metadata": {
     "name": ""
   },
   "spec": {
-    "tls": [
-         {
-             "hosts": [
-                 ""
-                     ],
-             "secretName": ""
-         }
-    ],
+    "tls": [],
     "rules": [
       {
         "host": "",

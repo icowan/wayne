@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs/Observable';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { throwError } from 'rxjs';
 import { PageState } from '../../../page/page-state';
 import { BaseClient } from './base-client';
@@ -18,6 +18,17 @@ export class JobClient {
     params = params.set('name', cronjobName);
     return this.http
       .get(`/api/v1/kubernetes/apps/${appId}/jobs/namespaces/${namespace}/clusters/${cluster}`, {params: params})
+      .catch(error => throwError(error));
+  }
+
+  deleteJobByName(cluster: string, namespace: string, jobName: string, appId: number): Observable<any> {
+    let params = new HttpParams();
+    if ((typeof (appId) === 'undefined') || (!appId)) {
+      appId = 0;
+    }
+    params = params.set('name', jobName);
+    return this.http
+      .delete(`/api/v1/kubernetes/apps/${appId}/jobs/namespaces/${namespace}/clusters/${cluster}`, {params: params})
       .catch(error => throwError(error));
   }
 
